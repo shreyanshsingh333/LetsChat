@@ -13,19 +13,18 @@ import java.util.List;
  * Created by Shreyansh on 12/9/2017.
  */
 
-public class MainAdapter extends ArrayAdapter<Main>{
-    public MainAdapter(Context context, int resource, List<Main> objects){
+public class FriendsAdapter extends ArrayAdapter<Friends>{
+    public FriendsAdapter(Context context, int resource, List<Friends> objects){
         super(context, resource, objects);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
-        if(convertView == null){
-            convertView = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.activity_item_main , parent,false);
-        }
+       convertView = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.activity_item_main , null,true);
+
         TextView nameTextView = convertView.findViewById(R.id.nameTextView);
-        Main main = getItem(position);
-        nameTextView.setText(main.getmName());
+        Friends friends = getItem(position);
+        nameTextView.setText(friends.getmName());
         return convertView;
     }
 
