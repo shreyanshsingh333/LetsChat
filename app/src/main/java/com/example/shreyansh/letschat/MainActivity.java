@@ -1,9 +1,14 @@
 package com.example.shreyansh.letschat;
 
+import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -26,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
     public static final String ANONYMOUS = "anonymous";
 
 
-    private FriendsAdapter mFriendsAdapter;
     private ListView mFriendListView;
     TextView editTextName;
     Button buttonAdd;
@@ -69,13 +73,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-       /* Friends friend = new Friends(mUsername);
-        mFriendsDatabaseReference.push().setValue(friend);*/
-
-
-
-
+        mFriendListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Friends friend = friends.get(position);
+                showUpdateDeleteDialog(friend.getmId(), friend.getmName());
+                return true;
+            }
+        });
 
     }
 
@@ -89,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
             String id = mFriendsDatabaseReference.push().getKey();
 
             //creating an Friends object
-            Friends friend = new Friends(name);
+            Friends friend = new Friends(id,name);
 
             //saving the Friend
             mFriendsDatabaseReference.child(id).setValue(friend);
@@ -125,6 +130,8 @@ public class MainActivity extends AppCompatActivity {
                 //Creating Adapter
                 FriendsAdapter friendsAdapter = new FriendsAdapter(MainActivity.this, R.layout.activity_item_main,friends);
                 mFriendListView.setAdapter(friendsAdapter);
+
+
             }
 
             @Override
@@ -132,6 +139,63 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void showUpdateDeleteDialog(final String friendId, String friendName){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflate = getLayoutInflater();
+        final View dialogView = inflate.inflate(R.layout.update_dialog, null);
+        dialogBuilder.setView(dialogView);
+
+        final EditText editTextName =  dialogView.findViewById(R.id.editTextName);
+        final Button buttonUpdate =  dialogView.findViewById(R.id.buttonUpdateArtist);
+        final Button buttonDelete =  dialogView.findViewById(R.id.buttonDeleteArtist);
+
+        dialogBuilder.setTitle(friendName);
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.show();
+        buttonUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String name = editTextName.getText().toString().trim();
+                if (!TextUtils.isEmpty(name)) {
+                    updateFriend(friendId,name);
+                    alertDialog.dismiss();
+                }
+            }
+        });
+
+
+        buttonDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                deleteFriend(friendId);
+                alertDialog.dismiss();
+
+            }
+        });
+    }
+
+    private boolean updateFriend(String id,String name){
+        //getting the specifies reference
+
+        DatabaseReference fdr = FirebaseDatabase.getInstance().getReference("friends").child(id);
+       Friends friend = new Friends(id,name);
+        fdr.setValue(friend);
+        Toast.makeText(getApplicationContext(),"Friend Updated",Toast.LENGTH_LONG).show();
+        return true;
+    }
+
+    private boolean deleteFriend(String id){
+        //getting the specified friend reference
+        DatabaseReference fdr = FirebaseDatabase.getInstance().getReference("friends").child(id);
+
+        //deleting friend
+        fdr.removeValue();
+
+        Toast.makeText(MainActivity.this,"friend deleted",Toast.LENGTH_LONG).show();
+        return true;
     }
 
 }

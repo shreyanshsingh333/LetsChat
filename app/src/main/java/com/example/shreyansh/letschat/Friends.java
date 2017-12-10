@@ -6,13 +6,15 @@ package com.example.shreyansh.letschat;
 
 public class Friends {
     private String mName;
-
+    private String mId;
     public Friends() {
     }
 
-    Friends(String name){
+    Friends(String id,String name){
+        this.mId = id;
         this.mName = name;
     }
 
     public String getmName(){return mName;}
+    public String getmId(){return mId;}
 }
